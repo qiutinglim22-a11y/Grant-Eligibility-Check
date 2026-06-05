@@ -1,0 +1,2337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grant Eligibility Portal | Industry Officer Suite</title>
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- SheetJS CDN for Excel/CSV parsing and export -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  
+  <style>
+    /* DESIGN SYSTEM & STYLING */
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #111827;
+      --bg-card: #1f2937;
+      --bg-card-hover: #374151;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-light: rgba(79, 70, 229, 0.15);
+      --accent: #06b6d4;
+      --success: #10b981;
+      --success-light: rgba(16, 185, 129, 0.1);
+      --warning: #f59e0b;
+      --warning-light: rgba(245, 158, 11, 0.1);
+      --error: #ef4444;
+      --error-light: rgba(239, 68, 68, 0.1);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-dark: #1f2937;
+      --border-color: #374151;
+      --border-focus: #6366f1;
+      --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      --radius: 12px;
+    }
+
+    /* LIGHT MODE COMPATIBILITY (OPTIONAL CSS TOGGLE) */
+    body.light-theme {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #f1f5f9;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.05), 0 4px 6px -2px rgba(15, 23, 42, 0.03);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* LAYOUT & DEREGULATION */
+    .app-header {
+      background-color: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 1.25rem;
+      box-shadow: 0 0 15px rgba(79, 70, 229, 0.4);
+    }
+
+    .brand-title h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .brand-title p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      background-color: var(--bg-primary);
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 16px;
+      font-family: var(--font-family);
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+      background-color: var(--bg-card);
+    }
+
+    .tab-btn.active {
+      background-color: var(--primary);
+      color: white;
+      box-shadow: var(--shadow-md);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .theme-toggle-btn {
+      background: none;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      color: var(--text-main);
+      border-color: var(--text-muted);
+    }
+
+    /* MAIN CONTAINER */
+    .main-container {
+      flex: 1;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* TAB CONTENTS */
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease-in-out forwards;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* UTILITY CARDS */
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-lg);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .card-header {
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* FORM STYLING (SINGLE CHECK) */
+    .single-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+      .single-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 640px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.span-2 {
+      grid-column: span 2;
+    }
+
+    @media (max-width: 640px) {
+      .form-group.span-2 {
+        grid-column: span 1;
+      }
+    }
+
+    label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    select {
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 10px 14px;
+      font-family: var(--font-family);
+      font-size: 0.875rem;
+      border-radius: 8px;
+      outline: none;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    /* TOGGLE BUTTONS GROUP */
+    .toggle-group {
+      display: flex;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-primary);
+      border-radius: 8px;
+      padding: 3px;
+      width: 100%;
+    }
+
+    .toggle-option {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-family);
+      font-weight: 600;
+      font-size: 0.875rem;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .toggle-option:hover {
+      color: var(--text-main);
+    }
+
+    .toggle-option.selected {
+      background-color: var(--bg-card-hover);
+      color: var(--text-main);
+    }
+
+    .toggle-option.selected.yes {
+      background-color: var(--success-light);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .toggle-option.selected.no {
+      background-color: var(--error-light);
+      color: var(--error);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .toggle-option.selected.primary-style {
+      background-color: var(--primary-light);
+      color: #818cf8;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+
+    /* DURATION CALCULATOR HELPER */
+    .duration-display {
+      margin-top: 6px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--accent);
+      background-color: rgba(6, 182, 212, 0.1);
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px dashed rgba(6, 182, 212, 0.3);
+      display: inline-block;
+    }
+
+    .duration-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    /* RESULT PANEL STYLING */
+    .result-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .overall-banner {
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border: 1px solid var(--border-color);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .overall-banner::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 6px;
+      height: 100%;
+    }
+
+    .overall-banner.fully_eligible {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%);
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+    .overall-banner.fully_eligible::before { background-color: var(--success); }
+    .overall-banner.fully_eligible h3 { color: var(--success); }
+
+    .overall-banner.company_funding_only {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(79, 70, 229, 0.05) 100%);
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+    .overall-banner.company_funding_only::before { background-color: var(--warning); }
+    .overall-banner.company_funding_only h3 { color: var(--warning); }
+
+    .overall-banner.ap_and_soi {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+      border-color: rgba(6, 182, 212, 0.3);
+    }
+    .overall-banner.ap_and_soi::before { background-color: var(--accent); }
+    .overall-banner.ap_and_soi h3 { color: var(--accent); }
+
+    .overall-banner.ap_only {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(17, 24, 39, 0.5) 100%);
+      border-color: rgba(245, 158, 11, 0.25);
+    }
+    .overall-banner.ap_only::before { background-color: var(--warning); }
+    .overall-banner.ap_only h3 { color: var(--warning); }
+
+    .overall-banner.soi_only {
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(17, 24, 39, 0.5) 100%);
+      border-color: rgba(79, 70, 229, 0.3);
+    }
+    .overall-banner.soi_only::before { background-color: var(--primary); }
+    .overall-banner.soi_only h3 { color: #818cf8; }
+
+    .overall-banner.not_eligible {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(17, 24, 39, 0.5) 100%);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+    .overall-banner.not_eligible::before { background-color: var(--error); }
+    .overall-banner.not_eligible h3 { color: var(--error); }
+
+    .overall-banner h3 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+
+    .overall-banner p {
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    .scheme-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .scheme-card {
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    .scheme-card:hover {
+      border-color: var(--border-focus);
+      box-shadow: var(--shadow-md);
+    }
+
+    .scheme-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+      padding-right: 15px;
+    }
+
+    .scheme-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .scheme-amount {
+      font-size: 1.125rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-top: 2px;
+    }
+
+    .scheme-reason {
+      font-size: 0.825rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      text-align: center;
+      min-width: 100px;
+    }
+
+    .badge.eligible {
+      background-color: var(--success-light);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .badge.not_eligible {
+      background-color: var(--error-light);
+      color: var(--error);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    /* BULK UPLOAD VIEW */
+    .dashboard-metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .metric-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: var(--shadow-md);
+      position: relative;
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .metric-value {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .metric-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .dropzone-container {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .dropzone-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .dropzone {
+      border: 2px dashed var(--border-color);
+      background-color: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 2.5rem 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--primary);
+      background-color: var(--bg-card-hover);
+      box-shadow: 0 0 15px rgba(79, 70, 229, 0.15);
+    }
+
+    .dropzone-icon {
+      width: 48px;
+      height: 48px;
+      background-color: var(--primary-light);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #818cf8;
+      font-size: 1.5rem;
+    }
+
+    .btn {
+      font-family: var(--font-family);
+      font-weight: 700;
+      font-size: 0.875rem;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      border: none;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+      box-shadow: 0 0 10px rgba(79, 70, 229, 0.4);
+    }
+
+    .btn-secondary {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--bg-card-hover);
+      border-color: var(--text-muted);
+    }
+
+    /* TABLE FILTERS & SEARCH */
+    .table-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .table-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      width: 100%;
+    }
+
+    .search-input-wrapper {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .filter-select {
+      min-width: 150px;
+      flex-shrink: 0;
+    }
+
+    .export-btns {
+      display: flex;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    @media (max-width: 768px) {
+      .export-btns {
+        margin-left: 0;
+        width: 100%;
+      }
+      .export-btns button {
+        flex: 1;
+      }
+    }
+
+    /* TABLE PREVIEW */
+    .table-container {
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-card);
+      box-shadow: var(--shadow-md);
+      margin-top: 1rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.875rem;
+    }
+
+    th {
+      background-color: var(--bg-secondary);
+      font-weight: 700;
+      color: var(--text-muted);
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-main);
+      white-space: nowrap;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: var(--bg-card-hover);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-pill.fully_eligible { background-color: var(--success-light); color: var(--success); }
+    .status-pill.company_funding_only { background-color: var(--warning-light); color: var(--warning); }
+    .status-pill.ap_and_soi { background-color: rgba(6, 182, 212, 0.1); color: var(--accent); }
+    .status-pill.ap_only { background-color: var(--warning-light); color: var(--warning); opacity: 0.85; }
+    .status-pill.soi_only { background-color: var(--primary-light); color: #818cf8; }
+    .status-pill.not_eligible { background-color: var(--error-light); color: var(--error); }
+
+    .action-btn-sm {
+      background: none;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      cursor: pointer;
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .action-btn-sm:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background-color: var(--primary-light);
+    }
+
+    .empty-state {
+      padding: 4rem 2rem;
+      text-align: center;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      color: var(--border-color);
+    }
+
+    /* MODAL WINDOWS */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.75);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      max-width: 600px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-xl);
+      animation: modalSlide 0.3s ease-out forwards;
+    }
+
+    @keyframes modalSlide {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .modal-close-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+
+    .modal-close-btn:hover {
+      color: var(--text-main);
+    }
+
+    .checklist-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .checklist-row:last-child {
+      border-bottom: none;
+    }
+
+    .checklist-label {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .checklist-title {
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .checklist-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .check-icon {
+      font-weight: 800;
+      font-size: 1.25rem;
+    }
+
+    .check-icon.pass { color: var(--success); }
+    .check-icon.fail { color: var(--error); }
+
+    /* RULES GUIDE VIEW - DOCK Decision Trees */
+    .rules-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 1024px) {
+      .rules-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .tree-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .tree-title {
+      font-size: 1.125rem;
+      font-weight: 800;
+      margin-bottom: 1.25rem;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+
+    .tree-step {
+      background-color: var(--bg-primary);
+      border-left: 3px solid var(--primary);
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+
+    .tree-step-num {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .tree-step-text {
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .tree-outcome-box {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .tree-outcome-title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .tree-outcome-value {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    /* FOOTER */
+    .app-footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.825rem;
+      border-top: 1px solid var(--border-color);
+      background-color: var(--bg-secondary);
+      margin-top: auto;
+    }
+
+    /* SVGs for icons */
+    .icon {
+      width: 1.25em;
+      height: 1.25em;
+      vertical-align: -0.25em;
+      fill: currentColor;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-logo">G</div>
+      <div class="brand-title">
+        <h1>Grant Eligibility Portal</h1>
+        <p>Industry Officer Work-Study Diploma Suite</p>
+      </div>
+    </div>
+    
+    <div class="header-actions">
+      <!-- NAVIGATION TABS -->
+      <nav class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('single-check')">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          Single Record Check
+        </button>
+        <button class="tab-btn" onclick="switchTab('bulk-upload')">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+          Bulk Upload Evaluation
+        </button>
+        <button class="tab-btn" onclick="switchTab('rules-guide')">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
+          Rules Reference Guide
+        </button>
+      </nav>
+
+      <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Light/Dark Theme">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="main-container">
+    
+    <!-- ==================== TAB 1: SINGLE RECORD CHECK ==================== -->
+    <div id="single-check" class="tab-content active">
+      <div class="single-layout">
+        
+        <!-- Manual Form Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <svg class="icon" style="color:var(--primary);" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+              Trainee & Company Profile
+            </h2>
+            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.75rem;" onclick="resetForm()">Reset Input</button>
+          </div>
+          
+          <form id="eligibilityForm" onsubmit="event.preventDefault();">
+            <div class="form-grid">
+              
+              <!-- Trainee Name -->
+              <div class="form-group">
+                <label for="traineeName">Trainee Name</label>
+                <input type="text" id="traineeName" placeholder="e.g. John Doe" oninput="liveEvaluate()">
+              </div>
+              
+              <!-- Trainee ID -->
+              <div class="form-group">
+                <label for="traineeId">Trainee ID (NRIC)</label>
+                <input type="text" id="traineeId" placeholder="e.g. S1234567A" oninput="liveEvaluate()">
+              </div>
+
+              <!-- Citizenship -->
+              <div class="form-group">
+                <label>Citizenship</label>
+                <div class="toggle-group" id="citizenshipGroup">
+                  <button type="button" class="toggle-option selected primary-style" onclick="selectToggle('citizenshipGroup', 'SC')">SC</button>
+                  <button type="button" class="toggle-option" onclick="selectToggle('citizenshipGroup', 'PR')">PR</button>
+                  <button type="button" class="toggle-option" onclick="selectToggle('citizenshipGroup', 'OTHERS')">Others</button>
+                </div>
+              </div>
+
+              <!-- BCA Scholar -->
+              <div class="form-group">
+                <label>BCA Scholar Status</label>
+                <div class="toggle-group" id="bcaScholarGroup">
+                  <button type="button" class="toggle-option" onclick="selectToggle('bcaScholarGroup', 'YES')">Yes</button>
+                  <button type="button" class="toggle-option selected" onclick="selectToggle('bcaScholarGroup', 'NO')">No</button>
+                </div>
+              </div>
+
+              <!-- Feeder Course -->
+              <div class="form-group">
+                <label>Is Feeder Course?</label>
+                <div class="toggle-group" id="feederCourseGroup">
+                  <button type="button" class="toggle-option selected" onclick="selectToggle('feederCourseGroup', 'YES')">Yes</button>
+                  <button type="button" class="toggle-option" onclick="selectToggle('feederCourseGroup', 'NO')">No</button>
+                </div>
+              </div>
+
+              <!-- Mode of Training -->
+              <div class="form-group">
+                <label>Mode of Training</label>
+                <div class="toggle-group" id="modeTrainingGroup">
+                  <button type="button" class="toggle-option selected primary-style" onclick="selectToggle('modeTrainingGroup', 'EDU/TRN')">EDU / TRN</button>
+                  <button type="button" class="toggle-option" onclick="selectToggle('modeTrainingGroup', 'CET/COC')">CET / COC</button>
+                </div>
+              </div>
+
+              <!-- Date Picker vs Manual Months Option -->
+              <div class="form-group span-2" style="border-top: 1px solid var(--border-color); padding-top: 1.25rem; margin-top: 0.5rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                  <label>Duration from Graduation / ORD</label>
+                  <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:0.7rem;">
+                    <input type="checkbox" id="manualMonthsToggle" onchange="toggleManualMonths()"> Enter months manually
+                  </label>
+                </div>
+                
+                <!-- Date pickers -->
+                <div id="datePickersGrid" class="duration-inputs">
+                  <div class="form-group">
+                    <label style="font-size:0.7rem; font-weight: 500;">Graduation / ORD Date</label>
+                    <input type="date" id="gradDate" onchange="calculateAndEvaluate()">
+                  </div>
+                  <div class="form-group">
+                    <label style="font-size:0.7rem; font-weight: 500;">Course Start Date</label>
+                    <input type="date" id="courseStartDate" onchange="calculateAndEvaluate()">
+                  </div>
+                </div>
+
+                <!-- Manual months input -->
+                <div id="manualMonthsInputWrapper" class="form-group" style="display:none;">
+                  <label style="font-size:0.7rem;">Elapsed Duration (Months)</label>
+                  <input type="text" id="manualMonthsInput" placeholder="e.g. 24" oninput="liveEvaluate()">
+                </div>
+
+                <div style="margin-top: 8px;">
+                  <span id="durationMonthsDisplay" class="duration-display">Duration: Select Dates</span>
+                </div>
+              </div>
+
+              <!-- Company Type -->
+              <div class="form-group span-2" style="border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+                <label>Employer / Company Type</label>
+                <div class="toggle-group" id="companyTypeGroup" style="margin-top: 6px;">
+                  <button type="button" class="toggle-option selected primary-style" onclick="selectToggle('companyTypeGroup', 'NON_GOV_GLC')">Non-Government / GLC</button>
+                  <button type="button" class="toggle-option" onclick="selectToggle('companyTypeGroup', 'MINISTRY_STAT_BOARD')">Government Ministry / Statutory Board</button>
+                </div>
+              </div>
+
+            </div>
+          </form>
+        </div>
+
+        <!-- Live Evaluation Result Panel -->
+        <div class="result-panel">
+          
+          <!-- Summary Banner -->
+          <div id="resultBanner" class="overall-banner not_eligible">
+            <h3 id="resultBannerTitle">Status Panel</h3>
+            <p id="resultBannerDesc">Please enter trainee details to evaluate eligibility.</p>
+          </div>
+
+          <!-- SSG card -->
+          <div class="scheme-card">
+            <div class="scheme-info">
+              <div class="scheme-title">
+                <svg class="icon" style="color:var(--success)" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                SSG Funding Eligibility (FMS)
+              </div>
+              <div id="ssgAmount" class="scheme-amount">$0</div>
+              <div id="ssgReason" class="scheme-reason">Awaiting inputs...</div>
+            </div>
+            <div id="ssgBadge" class="badge not_eligible">Not Eligible</div>
+          </div>
+
+          <!-- Absentee Payroll card -->
+          <div class="scheme-card">
+            <div class="scheme-info">
+              <div class="scheme-title">
+                <svg class="icon" style="color:var(--accent)" viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 1.21-1.04 1.93-2.7 1.93-1.96 0-2.73-.93-2.8-2.4H7.1c.08 1.97 1.54 3.42 3.6 3.89V21h3v-2.19c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.41z"/></svg>
+                Absentee Payroll (TPG)
+              </div>
+              <div id="apAmount" class="scheme-amount">Hourly Rate</div>
+              <div id="apReason" class="scheme-reason">Awaiting inputs...</div>
+            </div>
+            <div id="apBadge" class="badge not_eligible">Not Eligible</div>
+          </div>
+
+          <!-- SOI card -->
+          <div class="scheme-card">
+            <div class="scheme-info">
+              <div class="scheme-title">
+                <svg class="icon" style="color:#818cf8" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                Sign-On Incentive (SOI) - Trainee
+              </div>
+              <div id="soiAmount" class="scheme-amount">$0</div>
+              <div id="soiReason" class="scheme-reason">Awaiting inputs...</div>
+            </div>
+            <div id="soiBadge" class="badge not_eligible">Not Eligible</div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ==================== TAB 2: BULK UPLOAD EVALUATION ==================== -->
+    <div id="bulk-upload" class="tab-content">
+      
+      <!-- Metrics Dashboard -->
+      <div class="dashboard-metrics">
+        <div class="metric-card">
+          <span class="metric-label">Total Trainees</span>
+          <span class="metric-value" id="metricTotal">0</span>
+          <span class="metric-sub">Processed in batch</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">SSG Grant Eligible</span>
+          <span class="metric-value" id="metricSsg">0%</span>
+          <span class="metric-sub" id="metricSsgCount">0 trainees</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">AP Eligible</span>
+          <span class="metric-value" id="metricAp">0%</span>
+          <span class="metric-sub" id="metricApCount">0 trainees</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">SOI Eligible</span>
+          <span class="metric-value" id="metricSoi">0%</span>
+          <span class="metric-sub" id="metricSoiCount">0 trainees</span>
+        </div>
+        <div class="metric-card" style="border-left: 4px solid var(--accent);">
+          <span class="metric-label">Est. Funding Potential</span>
+          <span class="metric-value" id="metricValue" style="color:var(--accent);">$0</span>
+          <span class="metric-sub">SSG + SOI total potential</span>
+        </div>
+      </div>
+
+      <!-- File Dropzone and template section -->
+      <div class="dropzone-container">
+        <!-- Drag & Drop -->
+        <div class="dropzone" id="fileDropzone">
+          <div class="dropzone-icon">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+          </div>
+          <h3>Drag & Drop Excel / CSV File</h3>
+          <p style="color: var(--text-muted); font-size: 0.825rem; margin-bottom: 8px;">Supports .xlsx, .xls, .csv files</p>
+          <button class="btn btn-primary" onclick="triggerFileInput()">Browse Files</button>
+          <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display: none;" onchange="handleFileSelect(event)">
+        </div>
+
+        <!-- Template and Actions Card -->
+        <div class="card" style="display: flex; flex-direction: column; justify-content: center; gap: 15px; height: 100%;">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <h3 style="font-size: 1rem; font-weight: 700;">Bulk Upload Template</h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Ensure data column headers map perfectly to our template format for error-free evaluations.</p>
+          </div>
+          
+          <button class="btn btn-secondary" onclick="downloadCsvTemplate()">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+            Download CSV Template
+          </button>
+          
+          <button class="btn btn-secondary" id="clearBatchBtn" onclick="clearBatch()" style="display:none; color: var(--error);">
+            Clear Batch Data
+          </button>
+        </div>
+      </div>
+
+      <!-- Evaluated list preview -->
+      <div class="card" id="previewCard" style="display: none;">
+        <div class="card-header" style="flex-direction: column; gap: 1rem; align-items: stretch; border: none; padding-bottom: 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <h2 class="card-title">
+              <svg class="icon" style="color:var(--accent)" viewBox="0 0 24 24"><path d="M4 14h6v-4H4v4zm0 5h6v-4H4v4zM4 9h6V5H4v4zm9 5h7v-4h-7v4zm0 5h7v-4h-7v4zM13 5v4h7V5h-7z"/></svg>
+              Batch Records Evaluation Result
+            </h2>
+            <div class="export-btns">
+              <button class="btn btn-primary" onclick="exportResults('xlsx')">Export Excel (.xlsx)</button>
+              <button class="btn btn-secondary" onclick="exportResults('csv')">Export CSV</button>
+            </div>
+          </div>
+
+          <!-- Search & Filtering Controls -->
+          <div class="table-actions">
+            <div class="table-filters">
+              <div class="search-input-wrapper">
+                <input type="text" id="tableSearch" placeholder="Search by name or ID..." oninput="applyFilters()">
+              </div>
+              <select id="filterStatus" class="filter-select" onchange="applyFilters()">
+                <option value="ALL">All Statuses</option>
+                <option value="FULLY_ELIGIBLE">Fully Eligible</option>
+                <option value="COMPANY_FUNDING_ONLY">SSG + AP Only</option>
+                <option value="AP_AND_SOI">AP + SOI</option>
+                <option value="AP_ONLY">Absentee Payroll Only</option>
+                <option value="SOI_ONLY">SOI Only (Ministry Trainee)</option>
+                <option value="NOT_ELIGIBLE">Not Eligible</option>
+              </select>
+              <select id="filterSsg" class="filter-select" onchange="applyFilters()">
+                <option value="ALL">All SSG States</option>
+                <option value="ELIGIBLE">SSG Eligible</option>
+                <option value="NOT_ELIGIBLE">SSG Not Eligible</option>
+              </select>
+              <select id="filterSoi" class="filter-select" onchange="applyFilters()">
+                <option value="ALL">All SOI States</option>
+                <option value="ELIGIBLE">SOI Eligible</option>
+                <option value="NOT_ELIGIBLE">SOI Not Eligible</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table id="recordsTable">
+            <thead>
+              <tr>
+                <th>Trainee Name</th>
+                <th>Trainee ID</th>
+                <th>Overall Status</th>
+                <th>AP Funding</th>
+                <th>SSG Funding</th>
+                <th>SOI Status</th>
+                <th>Duration</th>
+                <th style="width: 60px;">Details</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="card" id="emptyStateCard">
+        <div class="empty-state">
+          <div class="empty-state-icon">📄</div>
+          <h3>No Data Uploaded</h3>
+          <p>Download the template, populate it, and upload the file to perform batch eligibility evaluation.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==================== TAB 3: RULES REFERENCE GUIDE ==================== -->
+    <div id="rules-guide" class="tab-content">
+      <div class="rules-grid">
+        
+        <!-- Company Funding Flowchart explanation -->
+        <div class="tree-card">
+          <h2 class="tree-title">Company Funding Decision Tree</h2>
+          <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+            Follow this mapping logic to determine if the company gets up to $15k SSG funding or Absentee Payroll (AP):
+          </p>
+
+          <div class="tree-step">
+            <div class="tree-step-num">Step 1: Employer Sector Check</div>
+            <div class="tree-step-text">Is the employer a Non-Government / GLC company?</div>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+              • <strong>NO (Ministry / Stat Board):</strong> The company gets <span style="color:var(--error); font-weight:700;">NO FUNDING</span>.<br>
+              • <strong>YES:</strong> Proceed to eligibility checks.
+            </p>
+          </div>
+
+          <div class="tree-step">
+            <div class="tree-step-num">Step 2: Training & Feeder Checks</div>
+            <div class="tree-step-text">Is it a Feeder Course AND is Mode of Training = EDU/TRN?</div>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+              • <strong>NO to either:</strong> Company only gets <strong style="color:var(--warning)">Absentee Payroll (TPG)</strong>.<br>
+              • <strong>YES to both:</strong> Proceed to Timeline Check.
+            </p>
+          </div>
+
+          <div class="tree-step">
+            <div class="tree-step-num">Step 3: Timeline Check</div>
+            <div class="tree-step-text">Is the duration from Graduation/ORD to Course Start &le; 60 months?</div>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+              • <strong>NO (&ge; 60 months):</strong> Company only gets <strong style="color:var(--warning)">Absentee Payroll (TPG)</strong>.<br>
+              • <strong>YES (&le; 60 months):</strong> Company gets <strong style="color:var(--success)">Up to $15k SSG Grant (FMS) + AP</strong>.
+            </p>
+          </div>
+
+          <div class="tree-outcome-box" style="background-color: var(--success-light); border-color: rgba(16, 185, 129, 0.3);">
+            <div class="tree-outcome-title" style="color: var(--success);">Max Funding Criteria Met</div>
+            <div class="tree-outcome-value">Company gets SSG Grant (FMS system) up to $15,000 + Absentee Payroll.</div>
+          </div>
+        </div>
+
+        <!-- Trainee SOI Flowchart explanation -->
+        <div class="tree-card">
+          <h2 class="tree-title">Sign-On Incentive (SOI) Decision Tree</h2>
+          <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+            A trainee is eligible for the $5,000 Sign-On Incentive (SOI) if and only if <strong>ALL 5 criteria</strong> are satisfied:
+          </p>
+
+          <div class="tree-step" style="border-left-color: var(--accent);">
+            <div class="tree-step-num">Criterion 1: Feeder Course Check</div>
+            <div class="tree-step-text">Course must be a Feeder Course (YES)</div>
+          </div>
+
+          <div class="tree-step" style="border-left-color: var(--accent);">
+            <div class="tree-step-num">Criterion 2: Mode of Training</div>
+            <div class="tree-step-text">Mode of training must be EDU / TRN</div>
+          </div>
+
+          <div class="tree-step" style="border-left-color: var(--accent);">
+            <div class="tree-step-num">Criterion 3: Timeline Constraint</div>
+            <div class="tree-step-text">Duration from Graduation/ORD to Course Start &le; 36 months</div>
+          </div>
+
+          <div class="tree-step" style="border-left-color: var(--accent);">
+            <div class="tree-step-num">Criterion 4: Citizenship</div>
+            <div class="tree-step-text">Must be a Singapore Citizen (SC)</div>
+          </div>
+
+          <div class="tree-step" style="border-left-color: var(--accent);">
+            <div class="tree-step-num">Criterion 5: BCA Scholar Status</div>
+            <div class="tree-step-text">Must NOT be a BCA Scholar (NO)</div>
+          </div>
+
+          <div class="tree-outcome-box" style="background-color: rgba(129, 140, 248, 0.15); border-color: rgba(99, 102, 241, 0.3);">
+            <div class="tree-outcome-title" style="color: #818cf8;">SOI Eligible</div>
+            <div class="tree-outcome-value">Trainee receives a one-time $5,000 Sign-On Incentive.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- DETAIL MODAL WINDOW -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTraineeName">Trainee Details</h3>
+        <button class="modal-close-btn" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- Metrics -->
+        <div style="background-color: var(--bg-primary); padding: 1.25rem; border-radius: 8px; display:flex; flex-direction:column; gap:8px;">
+          <div style="display:flex; justify-content:space-between;">
+            <span style="font-size:0.8rem; color:var(--text-muted);">Trainee ID</span>
+            <span style="font-weight:700;" id="modalTraineeId">-</span>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span style="font-size:0.8rem; color:var(--text-muted);">Overall Status</span>
+            <span class="status-pill" id="modalOverallStatus">Eligible</span>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span style="font-size:0.8rem; color:var(--text-muted);">Months from Graduation</span>
+            <span style="font-weight:700;" id="modalDuration">-</span>
+          </div>
+        </div>
+
+        <!-- Checklists -->
+        <div>
+          <h4 style="font-size:0.9rem; font-weight:700; margin-bottom: 8px; color: var(--accent);">Eligibility Checklist Verification</h4>
+          
+          <div class="checklist-row">
+            <div class="checklist-label">
+              <span class="checklist-title">Feeder Course</span>
+              <span class="checklist-desc">Must be listed as a Feeder Course</span>
+            </div>
+            <span class="check-icon" id="checkFeeder">-</span>
+          </div>
+
+          <div class="checklist-row">
+            <div class="checklist-label">
+              <span class="checklist-title">Mode of Training</span>
+              <span class="checklist-desc">Must be EDU/TRN (Education / Training)</span>
+            </div>
+            <span class="check-icon" id="checkMode">-</span>
+          </div>
+
+          <div class="checklist-row">
+            <div class="checklist-label">
+              <span class="checklist-title">Employer Type (AP & SSG)</span>
+              <span class="checklist-desc">Must be Non-Government / GLC</span>
+            </div>
+            <span class="check-icon" id="checkCompany">-</span>
+          </div>
+
+          <div class="checklist-row">
+            <div class="checklist-label">
+              <span class="checklist-title">SSG Duration Window</span>
+              <span class="checklist-desc">Timeline from Graduation to Course Start must be &le; 60 months</span>
+            </div>
+            <span class="check-icon" id="checkDurationSsg">-</span>
+          </div>
+
+          <div class="checklist-row">
+            <div class="checklist-label">
+              <span class="checklist-title">Citizenship (SOI Only)</span>
+              <span class="checklist-desc">Must be Singapore Citizen (SC)</span>
+            </div>
+            <span class="check-icon" id="checkCitizenship">-</span>
+          </div>
+
+          <div class="checklist-row">
+            <div class="checklist-label">
+              <span class="checklist-title">BCA Scholar (SOI Only)</span>
+              <span class="checklist-desc">Must NOT be a BCA Scholar</span>
+            </div>
+            <span class="check-icon" id="checkBca">-</span>
+          </div>
+
+          <div class="checklist-row">
+            <div class="checklist-label">
+              <span class="checklist-title">SOI Duration Window</span>
+              <span class="checklist-desc">Timeline from Graduation to Course Start must be &le; 36 months</span>
+            </div>
+            <span class="check-icon" id="checkDurationSoi">-</span>
+          </div>
+        </div>
+
+        <!-- Detail Remarks -->
+        <div>
+          <h4 style="font-size:0.9rem; font-weight:700; margin-bottom: 8px; color: var(--accent);">Funding Summary</h4>
+          <p style="font-size:0.875rem; color:var(--text-main); line-height: 1.5;" id="modalSummaryRemarks">-</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="app-footer">
+    <p>&copy; 2026 Work-Study Diploma Funding Eligibility Platform. All calculations and logic match policy checklist updated on 11 Nov 2024.</p>
+  </footer>
+
+  <!-- ==================== ELIGIBILITY ENGINE & APP LOGIC ==================== -->
+  <script>
+    // 1. ELIGIBILITY RULES DEFINITION
+    const RULES = {
+      MAX_MONTHS_SOI: 36,
+      MAX_MONTHS_SSG: 60,
+      AMOUNT_SOI: 5000,
+      AMOUNT_SSG_MAX: 15000,
+      FEEDER_YES: 'YES',
+      MODE_EDU_TRN: 'EDU/TRN',
+      CO_TYPE_NON_GOV: 'NON_GOV_GLC',
+      CITIZENSHIP_SC: 'SC',
+      BCA_SCHOLAR_NO: 'NO'
+    };
+
+    function normalize(val) {
+      if (val === null || val === undefined) return '';
+      return String(val).trim().toUpperCase();
+    }
+
+    function calculateMonthsBetween(gradDate, courseStartDate) {
+      if (!gradDate || !courseStartDate) return NaN;
+      const start = new Date(gradDate);
+      const end = new Date(courseStartDate);
+      
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) return NaN;
+      
+      const yearDiff = end.getFullYear() - start.getFullYear();
+      const monthDiff = end.getMonth() - start.getMonth();
+      
+      let totalMonths = yearDiff * 12 + monthDiff;
+      
+      const startDay = start.getDate();
+      const endDay = end.getDate();
+      if (endDay < startDay) {
+        const endMonthLastDay = new Date(end.getFullYear(), end.getMonth() + 1, 0).getDate();
+        if (endDay !== endMonthLastDay) {
+          totalMonths -= 1;
+          const prevMonthLastDay = new Date(end.getFullYear(), end.getMonth(), 0).getDate();
+          const fraction = (endDay + (prevMonthLastDay - startDay)) / prevMonthLastDay;
+          return Number((totalMonths + fraction).toFixed(1));
+        }
+      } else if (endDay > startDay) {
+        const currentMonthLastDay = new Date(end.getFullYear(), end.getMonth() + 1, 0).getDate();
+        const fraction = (endDay - startDay) / currentMonthLastDay;
+        return Number((totalMonths + fraction).toFixed(1));
+      }
+      
+      return totalMonths;
+    }
+
+    function evaluateEligibility(trainee) {
+      // Normalize inputs
+      const feeder = normalize(trainee.feederCourse) === 'YES' || trainee.feederCourse === true ? 'YES' : 'NO';
+      
+      // Handle training mode variation "EDU/TRN" or "EDU / TRN"
+      let mode = normalize(trainee.modeOfTraining);
+      if (mode.includes('EDU') && mode.includes('TRN')) {
+        mode = 'EDU/TRN';
+      } else {
+        mode = 'CET/COC';
+      }
+
+      // Handle company type mapping
+      let company = normalize(trainee.companyType);
+      if (company.includes('MINISTRY') || company.includes('STAT') || company.includes('BOARD')) {
+        company = 'MINISTRY_STAT_BOARD';
+      } else {
+        company = 'NON_GOV_GLC';
+      }
+
+      const citizen = normalize(trainee.citizenship);
+      const bcaScholar = normalize(trainee.isBcaScholar) === 'YES' || trainee.isBcaScholar === true ? 'YES' : 'NO';
+      
+      const duration = Number(trainee.durationMonths);
+      const hasValidDuration = !isNaN(duration);
+
+      const ap = { eligible: false, reason: '' };
+      const ssg = { eligible: false, amount: 0, reason: '' };
+      const soi = { eligible: false, amount: 0, reason: '' };
+      
+      const checks = {
+        isFeeder: feeder === RULES.FEEDER_YES,
+        isEduTrn: mode === RULES.MODE_EDU_TRN,
+        isNonGov: company === RULES.CO_TYPE_NON_GOV,
+        isSc: citizen === RULES.CITIZENSHIP_SC,
+        isNotScholar: bcaScholar === RULES.BCA_SCHOLAR_NO,
+        durationSsgOk: hasValidDuration && duration <= RULES.MAX_MONTHS_SSG,
+        durationSoiOk: hasValidDuration && duration <= RULES.MAX_MONTHS_SOI
+      };
+
+      // 1. AP
+      if (checks.isNonGov) {
+        ap.eligible = true;
+        ap.reason = 'Eligible (Company is Non-Government / GLC)';
+      } else {
+        ap.eligible = false;
+        ap.reason = 'Not Eligible (Government ministries & statutory boards are excluded)';
+      }
+
+      // 2. SSG
+      if (!checks.isNonGov) {
+        ssg.eligible = false;
+        ssg.amount = 0;
+        ssg.reason = 'Not Eligible (Government entities are excluded)';
+      } else {
+        const ssgFailures = [];
+        if (!checks.isFeeder) ssgFailures.push('Non-feeder Course');
+        if (!checks.isEduTrn) ssgFailures.push('Mode is not EDU/TRN');
+        if (!hasValidDuration) ssgFailures.push('Invalid timeline duration');
+        else if (!checks.durationSsgOk) ssgFailures.push(`Timeline exceeds ${RULES.MAX_MONTHS_SSG} months`);
+
+        if (ssgFailures.length === 0) {
+          ssg.eligible = true;
+          ssg.amount = RULES.AMOUNT_SSG_MAX;
+          ssg.reason = `Eligible: Up to $${RULES.AMOUNT_SSG_MAX.toLocaleString()} SSG FMS Funding`;
+        } else {
+          ssg.eligible = false;
+          ssg.amount = 0;
+          ssg.reason = `Not Eligible (${ssgFailures.join(', ')})`;
+        }
+      }
+
+      // 3. SOI
+      const soiFailures = [];
+      if (!checks.isFeeder) soiFailures.push('Non-feeder Course');
+      if (!checks.isEduTrn) soiFailures.push('Mode is not EDU/TRN');
+      if (!hasValidDuration) soiFailures.push('Invalid timeline duration');
+      else if (!checks.durationSoiOk) soiFailures.push(`Timeline exceeds ${RULES.MAX_MONTHS_SOI} months`);
+      if (!checks.isSc) soiFailures.push('Not Singapore Citizen');
+      if (!checks.isNotScholar) soiFailures.push('Is a BCA Scholar');
+
+      if (soiFailures.length === 0) {
+        soi.eligible = true;
+        soi.amount = RULES.AMOUNT_SOI;
+        soi.reason = `Eligible: $${RULES.AMOUNT_SOI.toLocaleString()} Sign-On Incentive`;
+      } else {
+        soi.eligible = false;
+        soi.amount = 0;
+        soi.reason = `Not Eligible (${soiFailures.join(', ')})`;
+      }
+
+      // Define Overall States
+      let overallStatus = 'NOT_ELIGIBLE';
+      let summaryText = 'Not eligible for any grants or incentives.';
+
+      if (ap.eligible && ssg.eligible && soi.eligible) {
+        overallStatus = 'FULLY_ELIGIBLE';
+        summaryText = 'Eligible for SSG Grant (up to $15k), Absentee Payroll, and $5k Sign-On Incentive.';
+      } else if (ap.eligible && ssg.eligible && !soi.eligible) {
+        overallStatus = 'COMPANY_FUNDING_ONLY';
+        summaryText = 'Eligible for SSG Grant (up to $15k) and Absentee Payroll. Trainee not eligible for SOI.';
+      } else if (ap.eligible && !ssg.eligible && soi.eligible) {
+        overallStatus = 'AP_AND_SOI';
+        summaryText = 'Eligible for Absentee Payroll and $5k Sign-On Incentive. SSG Grant not eligible.';
+      } else if (ap.eligible && !ssg.eligible && !soi.eligible) {
+        overallStatus = 'AP_ONLY';
+        summaryText = 'Eligible for Absentee Payroll ONLY (SSG and SOI not eligible).';
+      } else if (!ap.eligible && soi.eligible) {
+        overallStatus = 'SOI_ONLY';
+        summaryText = 'Trainee eligible for $5k Sign-On Incentive. Company not eligible (Government entity).';
+      }
+
+      return {
+        inputs: {
+          feederCourse: feeder,
+          modeOfTraining: mode,
+          durationMonths: duration,
+          companyType: company,
+          citizenship: citizen,
+          isBcaScholar: bcaScholar
+        },
+        results: {
+          ap,
+          ssg,
+          soi
+        },
+        overallStatus,
+        summaryText,
+        checks
+      };
+    }
+
+    // 2. UI & APP STATE
+    let activeTab = 'single-check';
+    let batchRecords = [];
+    const state = {
+      single: {
+        citizenship: 'SC',
+        bcaScholar: 'NO',
+        feederCourse: 'YES',
+        modeOfTraining: 'EDU/TRN',
+        companyType: 'NON_GOV_GLC',
+        durationMonths: NaN
+      }
+    };
+
+    // Initialize Page
+    window.addEventListener('DOMContentLoaded', () => {
+      // Set initial date defaults to make form easier to test
+      const today = new Date();
+      const formatToday = today.toISOString().split('T')[0];
+      
+      const twoYearsAgo = new Date();
+      twoYearsAgo.setFullYear(today.getFullYear() - 2);
+      const formatTwoYearsAgo = twoYearsAgo.toISOString().split('T')[0];
+      
+      document.getElementById('gradDate').value = formatTwoYearsAgo;
+      document.getElementById('courseStartDate').value = formatToday;
+      
+      calculateAndEvaluate();
+      setupDragAndDrop();
+    });
+
+    // Theme Toggle
+    function toggleTheme() {
+      document.body.classList.toggle('light-theme');
+    }
+
+    // Switch Tabs
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById(tabId).classList.add('active');
+      const clickedBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => btn.getAttribute('onclick').includes(tabId));
+      if (clickedBtn) clickedBtn.classList.add('active');
+      
+      activeTab = tabId;
+    }
+
+    // Handle Toggle Buttons Group Selection (Manual Check)
+    function selectToggle(groupId, value) {
+      const groupEl = document.getElementById(groupId);
+      groupEl.querySelectorAll('.toggle-option').forEach(btn => {
+        btn.classList.remove('selected', 'yes', 'no', 'primary-style');
+      });
+      
+      // Find the clicked button and select it
+      const btn = Array.from(groupEl.querySelectorAll('.toggle-option')).find(el => el.textContent.trim().toUpperCase() === value.toUpperCase() || (value === 'NON_GOV_GLC' && el.textContent.includes('Non-Government')) || (value === 'MINISTRY_STAT_BOARD' && el.textContent.includes('Government Ministry')) || (value === 'EDU/TRN' && el.textContent.includes('EDU')) || (value === 'CET/COC' && el.textContent.includes('CET')));
+      
+      if (btn) {
+        btn.classList.add('selected');
+        if (value === 'YES') btn.classList.add('yes');
+        else if (value === 'NO') btn.classList.add('no');
+        else btn.classList.add('primary-style');
+      }
+
+      // Update state
+      if (groupId === 'citizenshipGroup') state.single.citizenship = value;
+      else if (groupId === 'bcaScholarGroup') state.single.bcaScholar = value;
+      else if (groupId === 'feederCourseGroup') state.single.feederCourse = value;
+      else if (groupId === 'modeTrainingGroup') state.single.modeOfTraining = value;
+      else if (groupId === 'companyTypeGroup') state.single.companyType = value;
+      
+      liveEvaluate();
+    }
+
+    // Toggle Manual Months Checked
+    function toggleManualMonths() {
+      const checkbox = document.getElementById('manualMonthsToggle');
+      const datePickers = document.getElementById('datePickersGrid');
+      const manualInput = document.getElementById('manualMonthsInputWrapper');
+      
+      if (checkbox.checked) {
+        datePickers.style.display = 'none';
+        manualInput.style.display = 'flex';
+      } else {
+        datePickers.style.display = 'grid';
+        manualInput.style.display = 'none';
+        calculateAndEvaluate();
+      }
+      liveEvaluate();
+    }
+
+    // Calculate months dynamically from inputs and evaluate
+    function calculateAndEvaluate() {
+      const gradDateVal = document.getElementById('gradDate').value;
+      const courseStartDateVal = document.getElementById('courseStartDate').value;
+      const displayEl = document.getElementById('durationMonthsDisplay');
+      
+      if (gradDateVal && courseStartDateVal) {
+        const months = calculateMonthsBetween(gradDateVal, courseStartDateVal);
+        if (!isNaN(months)) {
+          state.single.durationMonths = months;
+          displayEl.textContent = `Duration: ${months} month${months === 1 ? '' : 's'} elapsed`;
+          displayEl.style.display = 'inline-block';
+        } else {
+          state.single.durationMonths = NaN;
+          displayEl.textContent = `Duration: Invalid dates`;
+        }
+      } else {
+        state.single.durationMonths = NaN;
+        displayEl.textContent = `Duration: Select Dates`;
+      }
+      liveEvaluate();
+    }
+
+    // Evaluate Single Form inputs
+    function liveEvaluate() {
+      const name = document.getElementById('traineeName').value || 'Trainee';
+      const id = document.getElementById('traineeId').value || 'SXXXXXXX';
+      
+      // Determine duration source
+      const manualMonthsToggle = document.getElementById('manualMonthsToggle').checked;
+      let duration = state.single.durationMonths;
+      
+      if (manualMonthsToggle) {
+        const inputVal = document.getElementById('manualMonthsInput').value;
+        duration = Number(inputVal);
+        const displayEl = document.getElementById('durationMonthsDisplay');
+        if (inputVal.trim() === '' || isNaN(duration)) {
+          displayEl.textContent = 'Duration: Input number';
+          duration = NaN;
+        } else {
+          displayEl.textContent = `Duration: ${duration} month${duration === 1 ? '' : 's'} elapsed`;
+        }
+      }
+
+      // Run Evaluator
+      const record = {
+        name,
+        id,
+        feederCourse: state.single.feederCourse,
+        modeOfTraining: state.single.modeOfTraining,
+        durationMonths: duration,
+        companyType: state.single.companyType,
+        citizenship: state.single.citizenship,
+        isBcaScholar: state.single.bcaScholar
+      };
+
+      const result = evaluateEligibility(record);
+      updateSingleCheckUI(result, name, id);
+    }
+
+    // Update UI panels with evaluation outputs
+    function updateSingleCheckUI(evalResult, name, id) {
+      const banner = document.getElementById('resultBanner');
+      const bannerTitle = document.getElementById('resultBannerTitle');
+      const bannerDesc = document.getElementById('resultBannerDesc');
+      
+      // Clear status classes
+      banner.className = 'overall-banner ' + evalResult.overallStatus.toLowerCase();
+      
+      // Set banner contents
+      let statusText = '';
+      switch (evalResult.overallStatus) {
+        case 'FULLY_ELIGIBLE':
+          statusText = 'Fully Eligible for Funding & SOI';
+          break;
+        case 'COMPANY_FUNDING_ONLY':
+          statusText = 'Company Funding Eligible Only';
+          break;
+        case 'AP_AND_SOI':
+          statusText = 'AP & Trainee Incentive Eligible';
+          break;
+        case 'AP_ONLY':
+          statusText = 'Absentee Payroll Only';
+          break;
+        case 'SOI_ONLY':
+          statusText = 'Trainee Incentive Only';
+          break;
+        case 'NOT_ELIGIBLE':
+          statusText = 'Not Eligible for Any Scheme';
+          break;
+      }
+      
+      bannerTitle.textContent = `${name} (${id}) - ${statusText}`;
+      bannerDesc.textContent = evalResult.summaryText;
+
+      // Update Card 1: SSG
+      const ssg = evalResult.results.ssg;
+      document.getElementById('ssgAmount').textContent = ssg.eligible ? `$${ssg.amount.toLocaleString()}` : '$0';
+      document.getElementById('ssgReason').textContent = ssg.reason;
+      const ssgBadge = document.getElementById('ssgBadge');
+      ssgBadge.textContent = ssg.eligible ? 'Eligible' : 'Not Eligible';
+      ssgBadge.className = 'badge ' + (ssg.eligible ? 'eligible' : 'not_eligible');
+
+      // Update Card 2: AP
+      const ap = evalResult.results.ap;
+      document.getElementById('apAmount').textContent = ap.eligible ? 'Hourly Rate' : 'No Funding';
+      document.getElementById('apReason').textContent = ap.reason;
+      const apBadge = document.getElementById('apBadge');
+      apBadge.textContent = ap.eligible ? 'Eligible' : 'Not Eligible';
+      apBadge.className = 'badge ' + (ap.eligible ? 'eligible' : 'not_eligible');
+
+      // Update Card 3: SOI
+      const soi = evalResult.results.soi;
+      document.getElementById('soiAmount').textContent = soi.eligible ? `$${soi.amount.toLocaleString()}` : '$0';
+      document.getElementById('soiReason').textContent = soi.reason;
+      const soiBadge = document.getElementById('soiBadge');
+      soiBadge.textContent = soi.eligible ? 'Eligible' : 'Not Eligible';
+      soiBadge.className = 'badge ' + (soi.eligible ? 'eligible' : 'not_eligible');
+    }
+
+    // Reset single record check form
+    function resetForm() {
+      document.getElementById('eligibilityForm').reset();
+      document.getElementById('traineeName').value = '';
+      document.getElementById('traineeId').value = '';
+      document.getElementById('manualMonthsToggle').checked = false;
+      
+      const today = new Date();
+      const formatToday = today.toISOString().split('T')[0];
+      const twoYearsAgo = new Date();
+      twoYearsAgo.setFullYear(today.getFullYear() - 2);
+      
+      document.getElementById('gradDate').value = twoYearsAgo.toISOString().split('T')[0];
+      document.getElementById('courseStartDate').value = formatToday;
+      
+      toggleManualMonths();
+      
+      // Set toggles back to default
+      selectToggle('citizenshipGroup', 'SC');
+      selectToggle('bcaScholarGroup', 'NO');
+      selectToggle('feederCourseGroup', 'YES');
+      selectToggle('modeTrainingGroup', 'EDU/TRN');
+      selectToggle('companyTypeGroup', 'NON_GOV_GLC');
+      
+      calculateAndEvaluate();
+    }
+
+    // 3. BULK UPLOAD DASHBOARD LOGIC
+    function setupDragAndDrop() {
+      const dropzone = document.getElementById('fileDropzone');
+      
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          dropzone.classList.add('dragover');
+        }, false);
+      });
+      
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          dropzone.classList.remove('dragover');
+        }, false);
+      });
+      
+      dropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files.length) {
+          processFile(files[0]);
+        }
+      }, false);
+    }
+
+    function triggerFileInput() {
+      document.getElementById('fileInput').click();
+    }
+
+    function handleFileSelect(e) {
+      const files = e.target.files;
+      if (files.length) {
+        processFile(files[0]);
+      }
+    }
+
+    // Read and parse spreadsheet files using SheetJS
+    function processFile(file) {
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+          
+          // Assume the first sheet is the target
+          const sheetName = workbook.SheetNames[0];
+          const sheet = workbook.Sheets[sheetName];
+          
+          // Parse rows into JSON format
+          const rawRows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+          
+          if (!rawRows.length) {
+            alert('The uploaded spreadsheet file appears to be empty.');
+            return;
+          }
+
+          evaluateBatchData(rawRows);
+          
+        } catch (error) {
+          console.error(error);
+          alert('Failed to parse file. Please verify that the file format is standard Excel/CSV.');
+        }
+      };
+      
+      reader.readAsArrayBuffer(file);
+    }
+
+    // Clean dates and parse batch rows
+    function evaluateBatchData(rows) {
+      batchRecords = [];
+      
+      rows.forEach(row => {
+        // Retrieve columns (handles multiple headers)
+        const name = row['Trainee Name'] || row['TraineeName'] || row['Name'] || 'Trainee';
+        const id = row['Trainee ID'] || row['TraineeID'] || row['ID'] || row['NRIC'] || 'SXXXXXXX';
+        
+        const feeder = row['Feeder Course (YES/NO)'] || row['Feeder Course'] || row['Feeder'] || 'YES';
+        const mode = row['Mode of Training (EDU/TRN or CET/COC)'] || row['Mode of Training'] || row['Mode'] || 'EDU/TRN';
+        const company = row['Company Type (NON_GOV_GLC or MINISTRY_STAT_BOARD)'] || row['Company Type'] || row['Company'] || 'NON_GOV_GLC';
+        const citizenship = row['Citizenship (SC/PR/OTHERS)'] || row['Citizenship'] || row['Citizen'] || 'SC';
+        const bca = row['BCA Scholar (YES/NO)'] || row['BCA Scholar'] || row['BCA'] || 'NO';
+        
+        // Duration Calculation from Dates
+        let duration = NaN;
+        const gradDateRaw = row['Graduation or ORD Date (YYYY-MM-DD)'] || row['Graduation Date'] || row['Graduation or ORD Date'] || row['GradDate'] || row['Graduation/ORD Date'];
+        const courseStartRaw = row['Course Start Date (YYYY-MM-DD)'] || row['Course Start Date'] || row['StartDate'] || row['CourseStartDate'];
+        
+        // If exact months column is provided
+        const durationMonthsRaw = row['Duration (Months)'] || row['Duration'] || row['Months'];
+        if (durationMonthsRaw !== undefined && durationMonthsRaw !== '') {
+          duration = Number(durationMonthsRaw);
+        } else if (gradDateRaw && courseStartRaw) {
+          duration = calculateMonthsBetween(gradDateRaw, courseStartRaw);
+        }
+        
+        const evaluation = evaluateEligibility({
+          feederCourse: feeder,
+          modeOfTraining: mode,
+          durationMonths: isNaN(duration) ? 0 : duration, // Default to 0 if missing
+          companyType: company,
+          citizenship: citizenship,
+          isBcaScholar: bca
+        });
+
+        batchRecords.push({
+          raw: row,
+          name: String(name),
+          id: String(id),
+          feederCourse: feeder,
+          modeOfTraining: mode,
+          companyType: company,
+          citizenship: citizenship,
+          isBcaScholar: bca,
+          durationMonths: isNaN(duration) ? '-' : duration,
+          evaluation
+        });
+      });
+
+      renderMetrics();
+      renderTable(batchRecords);
+      
+      // Update UI cards
+      document.getElementById('previewCard').style.display = 'block';
+      document.getElementById('emptyStateCard').style.display = 'none';
+      document.getElementById('clearBatchBtn').style.display = 'inline-flex';
+    }
+
+    // Render Metrics Dashboard statistics
+    function renderMetrics() {
+      const total = batchRecords.length;
+      if (total === 0) return;
+      
+      let ssgEligibleCount = 0;
+      let apEligibleCount = 0;
+      let soiEligibleCount = 0;
+      let totalFundingPotential = 0;
+
+      batchRecords.forEach(rec => {
+        if (rec.evaluation.results.ssg.eligible) {
+          ssgEligibleCount++;
+          totalFundingPotential += rec.evaluation.results.ssg.amount;
+        }
+        if (rec.evaluation.results.ap.eligible) {
+          apEligibleCount++;
+        }
+        if (rec.evaluation.results.soi.eligible) {
+          soiEligibleCount++;
+          totalFundingPotential += rec.evaluation.results.soi.amount;
+        }
+      });
+
+      const ssgPct = Math.round((ssgEligibleCount / total) * 100);
+      const apPct = Math.round((apEligibleCount / total) * 100);
+      const soiPct = Math.round((soiEligibleCount / total) * 100);
+
+      document.getElementById('metricTotal').textContent = total;
+      
+      document.getElementById('metricSsg').textContent = `${ssgPct}%`;
+      document.getElementById('metricSsgCount').textContent = `${ssgEligibleCount} trainee${ssgEligibleCount === 1 ? '' : 's'}`;
+      
+      document.getElementById('metricAp').textContent = `${apPct}%`;
+      document.getElementById('metricApCount').textContent = `${apEligibleCount} trainee${apEligibleCount === 1 ? '' : 's'}`;
+      
+      document.getElementById('metricSoi').textContent = `${soiPct}%`;
+      document.getElementById('metricSoiCount').textContent = `${soiEligibleCount} trainee${soiEligibleCount === 1 ? '' : 's'}`;
+      
+      document.getElementById('metricValue').textContent = `$${totalFundingPotential.toLocaleString()}`;
+    }
+
+    // Render Table Rows
+    function renderTable(records) {
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+
+      if (records.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">No matching records found.</td></tr>`;
+        return;
+      }
+
+      records.forEach((rec, idx) => {
+        const tr = document.createElement('tr');
+        
+        let statusClass = rec.evaluation.overallStatus.toLowerCase();
+        let statusLabel = '';
+        switch (rec.evaluation.overallStatus) {
+          case 'FULLY_ELIGIBLE': statusLabel = 'Fully Eligible'; break;
+          case 'COMPANY_FUNDING_ONLY': statusLabel = 'SSG + AP'; break;
+          case 'AP_AND_SOI': statusLabel = 'AP + SOI'; break;
+          case 'AP_ONLY': statusLabel = 'AP Only'; break;
+          case 'SOI_ONLY': statusLabel = 'SOI Only'; break;
+          case 'NOT_ELIGIBLE': statusLabel = 'Not Eligible'; break;
+        }
+
+        const apLabel = rec.evaluation.results.ap.eligible ? 'Eligible' : 'Not Eligible';
+        const apClass = rec.evaluation.results.ap.eligible ? 'eligible' : 'not_eligible';
+
+        const ssgLabel = rec.evaluation.results.ssg.eligible ? `$${rec.evaluation.results.ssg.amount.toLocaleString()}` : 'Not Eligible';
+        const ssgClass = rec.evaluation.results.ssg.eligible ? 'eligible' : 'not_eligible';
+
+        const soiLabel = rec.evaluation.results.soi.eligible ? `$${rec.evaluation.results.soi.amount.toLocaleString()}` : 'Not Eligible';
+        const soiClass = rec.evaluation.results.soi.eligible ? 'eligible' : 'not_eligible';
+
+        const durationText = rec.durationMonths === '-' ? '-' : `${rec.durationMonths} mth${rec.durationMonths === 1 ? '' : 's'}`;
+
+        tr.innerHTML = `
+          <td style="font-weight: 600;">${escapeHtml(rec.name)}</td>
+          <td>${escapeHtml(rec.id)}</td>
+          <td><span class="status-pill ${statusClass}">${statusLabel}</span></td>
+          <td><span class="badge ${apClass}" style="min-width: unset; padding: 4px 8px; font-size: 0.7rem;">${apLabel}</span></td>
+          <td><span class="badge ${ssgClass}" style="min-width: unset; padding: 4px 8px; font-size: 0.7rem;">${ssgLabel}</span></td>
+          <td><span class="badge ${soiClass}" style="min-width: unset; padding: 4px 8px; font-size: 0.7rem;">${soiLabel}</span></td>
+          <td style="font-weight: 500;">${durationText}</td>
+          <td>
+            <button class="action-btn-sm" onclick="showRecordDetails(${idx})" title="View Details">i</button>
+          </td>
+        `;
+        
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Filter and Search Table records
+    function applyFilters() {
+      const searchVal = document.getElementById('tableSearch').value.toLowerCase();
+      const statusFilter = document.getElementById('filterStatus').value;
+      const ssgFilter = document.getElementById('filterSsg').value;
+      const soiFilter = document.getElementById('filterSoi').value;
+
+      const filtered = batchRecords.filter(rec => {
+        // Search
+        const matchesSearch = rec.name.toLowerCase().includes(searchVal) || rec.id.toLowerCase().includes(searchVal);
+        
+        // Overall Status
+        const matchesStatus = (statusFilter === 'ALL') || (rec.evaluation.overallStatus === statusFilter);
+        
+        // SSG filter
+        let matchesSsg = true;
+        if (ssgFilter === 'ELIGIBLE') matchesSsg = rec.evaluation.results.ssg.eligible;
+        else if (ssgFilter === 'NOT_ELIGIBLE') matchesSsg = !rec.evaluation.results.ssg.eligible;
+
+        // SOI filter
+        let matchesSoi = true;
+        if (soiFilter === 'ELIGIBLE') matchesSoi = rec.evaluation.results.soi.eligible;
+        else if (soiFilter === 'NOT_ELIGIBLE') matchesSoi = !rec.evaluation.results.soi.eligible;
+
+        return matchesSearch && matchesStatus && matchesSsg && matchesSoi;
+      });
+
+      renderTable(filtered);
+    }
+
+    // View specific record details modal
+    function showRecordDetails(index) {
+      const rec = batchRecords[index];
+      if (!rec) return;
+
+      document.getElementById('modalTraineeName').textContent = rec.name;
+      document.getElementById('modalTraineeId').textContent = rec.id;
+      
+      const statusClass = rec.evaluation.overallStatus.toLowerCase();
+      let statusLabel = '';
+      switch (rec.evaluation.overallStatus) {
+        case 'FULLY_ELIGIBLE': statusLabel = 'Fully Eligible'; break;
+        case 'COMPANY_FUNDING_ONLY': statusLabel = 'SSG + AP Only'; break;
+        case 'AP_AND_SOI': statusLabel = 'AP + SOI Eligible'; break;
+        case 'AP_ONLY': statusLabel = 'Absentee Payroll Only'; break;
+        case 'SOI_ONLY': statusLabel = 'SOI Eligible (Gov Employer)'; break;
+        case 'NOT_ELIGIBLE': statusLabel = 'Not Eligible'; break;
+      }
+      
+      const modalStatus = document.getElementById('modalOverallStatus');
+      modalStatus.textContent = statusLabel;
+      modalStatus.className = 'status-pill ' + statusClass;
+
+      const durationText = rec.durationMonths === '-' ? '-' : `${rec.durationMonths} mth${rec.durationMonths === 1 ? '' : 's'}`;
+      document.getElementById('modalDuration').textContent = durationText;
+
+      // Update check icons
+      const checks = rec.evaluation.checks;
+      
+      setCheckIcon('checkFeeder', checks.isFeeder);
+      setCheckIcon('checkMode', checks.isEduTrn);
+      setCheckIcon('checkCompany', checks.isNonGov);
+      setCheckIcon('checkDurationSsg', checks.durationSsgOk);
+      setCheckIcon('checkCitizenship', checks.isSc);
+      setCheckIcon('checkBca', checks.isNotScholar);
+      setCheckIcon('checkDurationSoi', checks.durationSoiOk);
+
+      document.getElementById('modalSummaryRemarks').textContent = rec.evaluation.summaryText;
+
+      document.getElementById('detailModal').classList.add('active');
+    }
+
+    function setCheckIcon(elementId, passed) {
+      const el = document.getElementById(elementId);
+      if (passed) {
+        el.textContent = '✓';
+        el.className = 'check-icon pass';
+      } else {
+        el.textContent = '✗';
+        el.className = 'check-icon fail';
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('detailModal').classList.remove('active');
+    }
+
+    // Export Results back to Excel/CSV
+    function exportResults(format) {
+      if (batchRecords.length === 0) return;
+
+      const outputData = batchRecords.map(rec => {
+        return {
+          'Trainee Name': rec.name,
+          'Trainee ID': rec.id,
+          'Feeder Course': rec.feederCourse,
+          'Mode of Training': rec.modeOfTraining,
+          'Company Type': rec.companyType,
+          'Citizenship': rec.citizenship,
+          'BCA Scholar': rec.isBcaScholar,
+          'Duration (Months)': rec.durationMonths,
+          'Overall Eligibility Status': rec.evaluation.overallStatus,
+          'Absentee Payroll Eligible': rec.evaluation.results.ap.eligible ? 'YES' : 'NO',
+          'Absentee Payroll Reason': rec.evaluation.results.ap.reason,
+          'SSG Grant Eligible': rec.evaluation.results.ssg.eligible ? 'YES' : 'NO',
+          'SSG Funding Amount': rec.evaluation.results.ssg.amount,
+          'SSG Grant Reason': rec.evaluation.results.ssg.reason,
+          'SOI Eligible': rec.evaluation.results.soi.eligible ? 'YES' : 'NO',
+          'SOI Funding Amount': rec.evaluation.results.soi.amount,
+          'SOI Reason': rec.evaluation.results.soi.reason,
+          'Overall Summary': rec.evaluation.summaryText
+        };
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(outputData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Eligibility Results");
+
+      if (format === 'xlsx') {
+        XLSX.writeFile(workbook, "evaluated_trainee_eligibility.xlsx");
+      } else if (format === 'csv') {
+        XLSX.writeFile(workbook, "evaluated_trainee_eligibility.csv", { bookType: 'csv' });
+      }
+    }
+
+    // Download dynamic template
+    function downloadCsvTemplate() {
+      const csvContent = 
+        "Trainee Name,Trainee ID,Feeder Course (YES/NO),Mode of Training (EDU/TRN or CET/COC),Graduation or ORD Date (YYYY-MM-DD),Course Start Date (YYYY-MM-DD),Company Type (NON_GOV_GLC or MINISTRY_STAT_BOARD),Citizenship (SC/PR/OTHERS),BCA Scholar (YES/NO)\n" +
+        "John Doe,S1234567A,YES,EDU/TRN,2024-05-15,2026-05-15,NON_GOV_GLC,SC,NO\n" +
+        "Jane Smith,S7654321B,NO,CET/COC,2019-01-01,2025-06-01,NON_GOV_GLC,PR,YES\n" +
+        "Bob Johnson,S9876543C,YES,EDU/TRN,2024-06-01,2025-06-01,MINISTRY_STAT_BOARD,SC,NO\n" +
+        "Alice Brown,S3456789D,YES,EDU/TRN,2022-01-01,2025-06-01,NON_GOV_GLC,PR,NO";
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "trainee_upload_template.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    }
+
+    // Clear Batch uploaded files
+    function clearBatch() {
+      batchRecords = [];
+      document.getElementById('fileInput').value = '';
+      
+      document.getElementById('metricTotal').textContent = '0';
+      document.getElementById('metricSsg').textContent = '0%';
+      document.getElementById('metricSsgCount').textContent = '0 trainees';
+      document.getElementById('metricAp').textContent = '0%';
+      document.getElementById('metricApCount').textContent = '0 trainees';
+      document.getElementById('metricSoi').textContent = '0%';
+      document.getElementById('metricSoiCount').textContent = '0 trainees';
+      document.getElementById('metricValue').textContent = '$0';
+
+      document.getElementById('previewCard').style.display = 'none';
+      document.getElementById('emptyStateCard').style.display = 'block';
+      document.getElementById('clearBatchBtn').style.display = 'none';
+    }
+
+    // Helper to escape HTML tags to avoid XSS
+    function escapeHtml(str) {
+      if (typeof str !== 'string') return str;
+      return str.replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>
